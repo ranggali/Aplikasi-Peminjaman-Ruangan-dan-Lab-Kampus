@@ -1,0 +1,278 @@
+<?php
+require_once __DIR__ . '../../koneksi.php';
+$connection = getConnection();
+
+session_start();
+if ($_SESSION['login'] != true) {
+    header('Location:index.php');
+    exit();
+}
+
+$nim_mhs = $_SESSION['username'];
+
+
+?>
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>Home PBL KEL 4</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <!----css3---->
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- SLIDER REVOLUTION 4.x CSS SETTINGS -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.22/datatables.min.css" />
+
+
+
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="wrapper">
+
+
+        <div class="body-overlay"></div>
+
+
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="sidebar-header text-white">
+                <h3><img src="assets/user 1.png" width="30" height="30" alt=""><span class="text-white">Admin</span></h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="">
+                    <a href="dashboard.php" class="dashboard text-white"><i class="material-icons text-white">dashboard</i><span>Dashboard</span></a>
+                </li>
+
+                <li class="">
+                    <a href="infoRuang.php"><i class="material-icons text-white">aspect_ratio</i><span class="text-white">informasi Ruangan</span></a>
+                </li>
+
+                <li class="active">
+                    <a href="schedules.php"><i class="material-icons text-white">date_range</i><span class="text-white">Konfirmasi</span></a>
+                </li>
+
+                <li class="">
+                    <a href="LoanDone.php"><i class="material-icons text-white">grid_on</i><span class="text-white">Schedules</span></a>
+                </li>
+
+                <li class="">
+                    <a href="tambah_user.php"><i class="material-icons text-white">library_books</i><span class="text-white">Tambah User</span></a>
+                </li>
+
+                
+                <br><br><br><br><br><br><br>
+                <hr color="white">
+
+                <li class="">
+                    <a onclick='return confirm("Apakah Anda yakin ingin keluar dari system ini?")' href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket text-white"></i><span class="text-white">Logout</span></a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+
+        <!-- Page Content  -->
+        <div id="content">
+
+            <div class="top-navbar">
+                <nav class="navbar navbar-expand-lg">
+                    <div class="container-fluid">
+
+                        <button type="button" id="sidebarCollapse" class="d-xl-block d-lg-block d-md-mone d-none">
+                            <span class="material-icons">arrow_back_ios</span>
+                        </button>
+
+                        <a class="navbar-brand" href="#"> Konfirmasi </a>
+
+                        <button class="d-inline-block d-lg-none ml-auto more-button" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="material-icons">more_vert</span>
+                        </button>
+
+                        <div class="collapse navbar-collapse d-lg-block d-xl-block d-sm-none d-md-none d-none" id="navbarSupportedContent">
+                            <ul class="nav navbar-nav ml-auto">
+
+                                <li class="nav-item">
+                                    <!-- <a class="nav-link" href="#">
+                                        <span class="material-icons">settings</span>
+                                        </a> -->
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="main-content">
+                <table class="table table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nomor</th>
+                            <th>Id User</th>
+                            <th>Nama</th>
+                            <th>Ruangan</th>
+                            <th>Tanggal</th>
+                            <th>Tujuan</th>
+                            <th>Waktu Mulai</th>
+                            <th>Waktu Selesai</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data_peminjam">
+                        <?php
+                        require_once __DIR__ . '../../koneksi.php';
+                        $connection = getConnection();
+                        $sql = <<< SQL
+        SELECT p.nama_lengkap,p.id_user,d.status,d.id_ruangan,d.tanggal,d.tujuan,d.waktu_mulai,d.waktu_selesai,d.id_peminjaman
+        FROM peminjaman as d
+        JOIN user as p ON (p.id_user=d.id_user)
+    SQL;
+                        $statement = $connection->query($sql);
+
+                        $nomor = 1;
+                        foreach ($statement as $row) {
+                            $nama_lengkap = $row['nama_lengkap'];
+                            $status = $row['status'];
+                            $nim = $row['id_user'];
+                            $ruang = $row['id_ruangan'];
+                            $tujuan = $row['tujuan'];
+                            $tanggal = $row['tanggal'];
+                            $mulai = $row['waktu_mulai'];
+                            $selesai = $row['waktu_selesai'];
+                            $id = $row['id_peminjaman'];
+                            if ($status == 0) {
+
+                                echo "
+            <tr>
+                <td>$nomor</td>
+                <td>$nim</td>
+                <td>$nama_lengkap</td>
+                <td>$ruang</td>
+                <td>$tanggal</td>
+                <td>$tujuan</td>
+                <td>$mulai</td>
+                <td>$selesai</td>
+                <td>
+                <a href='tolak.php?id=$id' class='hapus' name='hapus' onclick='tolak()'><i class='bg-danger p-2 text-white rounded'>Tolak</i></a>
+                <a href='konfirmasi.php?id=$id&ruangan=$ruang' class='hapus' name='hapus' onclick='konfirmasi($id)'><i class='bg-success p-2 text-white rounded'>Terima</i></a> 
+                </td>
+            </tr>
+
+            
+            ";
+                            }
+                            $nomor += 1;
+                            }
+                        ?>
+
+                    </tbody>
+                </table>
+                <!-- <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> -->
+            </div>
+
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <nav class="d-flex">
+                                <ul class="m-0 p-0">
+                                    <li>
+                                        <a href="#"></a>
+                                    </li>
+                                    <li>
+                                        <a href="#"></a>
+                                    </li>
+                                    <li>
+                                        <a href="#"></a>
+                                    </li>
+                                    <li>
+                                        <a href="#"></a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                        </div>
+                        <div class="col-md-6">
+                            <!-- <p class="copyright d-flex justify-content-end"> &copy 2021 Design by
+                            <a href="#">Vishweb Design</a> BootStrap Admin Dashboard
+                        </p> -->
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+
+
+
+    </div>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-3.3.1.slim.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.22/datatables.min.js"></script>
+
+    <script type="text/javascript">
+        //$('.data_peminjam').load('data_peminjam.php');
+        $('.table').DataTable();
+        $(document).ready(function() {
+            $('#sidebarCollapse').on('click', function() {
+                $('#sidebar').toggleClass('active');
+                $('#content').toggleClass('active');
+            });
+
+            $('.more-button,.body-overlay').on('click', function() {
+                $('#sidebar,.body-overlay').toggleClass('show-nav');
+            });
+
+        });
+
+        function hapus(id) {
+            $.ajax({
+                type: 'POST',
+                url: 'konfirmasi.php?id=' + id,
+            });
+        }
+    </script>
+
+
+
+
+
+
+</body>
+
+</html>
